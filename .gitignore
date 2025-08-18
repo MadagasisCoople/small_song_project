@@ -1,0 +1,13 @@
+__pycache__/
+.devcontainer/
+.venv/
+.vscode/
+node_modules/
+Scripts/
+package-lock.json
+.env
+.env.*
+usernamesong-win32-x64/
+static/
+extracted_data.json
+output.wav

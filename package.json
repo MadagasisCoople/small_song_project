@@ -1,0 +1,23 @@
+{
+  "name": "usernamesong",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . usernamesong --platform=win32 --arch=x64 --icon=icon.ico --overwrite --ignore=\\.venv"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "mongodb": "^6.16.0",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@electron/packager": "^18.3.6",
+    "electron": "^30.5.1"
+  }
+}

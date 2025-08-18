@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Meta tags for character encoding and responsive viewport -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Link to external CSS stylesheet -->
+    <link rel="stylesheet" href="song_project.css">
+    <title>MUSIC FOR EVERYBODY!!!</title>
+</head>
+
+<body class="body" id="mainBody">
+
+    <img id="thePet" src="./img/robinPet.webp" alt="Robin Pet">
+
+    <!-- Main music section with user authentication form -->
+    <nav class="backGround" id="musicWebsite">
+
+        <h1 id="headLine">Loading ....</h1>
+        <!-- User authentication form with username and password fields -->
+        <form id="formLinkPython">
+            <!-- Username input section -->
+            <label class="question userNames" for="userName">May I have your account name please?</label><br>
+            <div class="input">
+                <input type="text" class="queries userNames" id="inputUserName" name="userName" required><br>
+            </div>
+
+            <!-- Password input section -->
+            <label class="question passWords" for="passWord">Tell me a secret. *Your password*</label><br>
+            <div class="input">
+                <input type="text" class="queries passWords" id="inputPassWord" name="passWord"><br>
+            </div>
+
+            <!-- Action buttons section -->
+            <nav class="button" id="submitButtons">
+                <button id="submitButton" type="submit">Song coming for ya!</button>
+            </nav>
+            <nav class="button" id="signUpButtons">
+                <button id="signUpButton" type="button">New life is waiting~~</button>
+            </nav>
+        </form>
+        <!-- Container for displaying user's music list -->
+        <ul id="musicContainer">Your music:</ul>
+    </nav>
+
+    <!-- Add/Delete music section -->
+     <nav class="backGround" id="musicAddDeleteWebsite">
+        <div id="greeting">Type in the music you want to delete/add</div>
+        <input id="musicInput" type="text">
+        <button id="addButton">+</button>
+        <button id="deleteButton">-</button>
+     </nav>
+
+    <!-- Card game section -->
+    <nav class="backGround" id="chessGameWebsite">
+        <!-- Card management options -->
+        <div id="addCard">Add new card for your deck!</div>
+        <div id="removeCard">Remove card from your deck!</div>
+        <div id="battleCards">Battle with someone of your choice deck!</div>
+        <!-- Container for displaying user's card collection -->
+        <ul id="getAllUsersCards">All your cards in your deck!</ul>
+    </nav>
+
+    <!-- AI recommendation section -->
+    <nav class="backGround" id="aiWebsite">
+        <!-- Music recommendation options -->
+        <div id="recommendMusic">Reccomend a Music for ya</div>
+        <div id="pickMusic">Pick a Music from ya list</div>
+    </nav>
+
+    <!-- Recording audio section -->
+    <nav class="backGround" id="recordingWebsite">
+        <!-- Audio recording options -->
+        <div id="recordAudio">Record Audio</div> 
+    </nav>
+
+    <!-- Casino section -->
+    <nav class="backGround" id="casinoWebsite">
+        <!-- Casino options -->
+        <div id="lowerOrHigherWrapper">Try your luck with Lower or Higher?</div>
+    </nav>
+
+    <!--  Shop section -->
+    <nav class="backGround" id="shopWebsite">
+        <!-- Shop options -->
+        <div id="buyBanishCard">Buy back banished card</div>
+    </nav>
+
+    <!-- Image Extractor section -->
+    <nav class="backGround" id="imageExtractorWebsite">
+        <!-- Image extractor options -->
+        <div id="imageExtractWrapper">Extract Image</div>
+    </nav>
+
+    <!-- Link to external JavaScript file -->
+    <script src="song_project.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mattdiamond/Recorderjs@master/dist/recorder.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

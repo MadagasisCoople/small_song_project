@@ -1,0 +1,22 @@
+[project]
+name = "usernamesong"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "autogen-agentchat==0.7.2",
+    "autogen-ext[openai]==0.7.2",
+    "fastapi==0.116.1",
+    "google-api-python-client==2.178.0",
+    "httpx==0.28.1",
+    "llvmlite==0.44.0",
+    "motor==3.7.1",
+    "openai==1.99.1",
+    "pipecat-ai[deepgram,elevenlabs]==0.0.79",
+    "pymongo===4.14.0",
+    "python-dotenv==1.1.1",
+    "python-multipart==0.0.20",
+    "python-socketio>=5.10.0",
+    "uvicorn==0.35.0",
+]
