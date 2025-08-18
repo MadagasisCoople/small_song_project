@@ -18,8 +18,10 @@ socket.on("connect", () => {
 });
 
 // Handle incoming task messages
-socket.on("task_message", (payload) => {
-    console.log("Task update received:", payload);
+socket.on("chat_message", (type) => {
+    if (type == "music") {
+        console.log("Music added to playlist");
+    }
 });
 
 // Disconnection event

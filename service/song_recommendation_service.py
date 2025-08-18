@@ -29,7 +29,24 @@ class DateTimeEncoder(json.JSONEncoder):
         if isinstance(obj, datetime):
             return obj.isoformat()  # Or str(obj)
         return super().default(obj)
+
+async def input_function_user_proxy(context, prompt) -> str:
+    # Wait until frontend sends a "response" event
+    """
+    Wait until frontend sends a "response" event.
+
+    Parameters:
+    - context: The context of the function.
+    - prompt: The prompt to the user.
+    (Not much usage, just to match the requirement of ASyncInputFunc)
+    Returns:
+    - str: The message received from the user.
+    """
     
+    from infrastructure.socketio import user_message_queue
+    msg = await user_message_queue.get()
+    return msg
+
 class SongRecommender:
     def __init__(self,model_cilent: OpenAIChatCompletionClient):
         self.model_client = model_cilent
@@ -68,7 +85,8 @@ class SongRecommender:
         # emotion agents
         issue_agent= await agent.create_working_agent("Ms_Robin",db)
         issue_agent_assistant = await agent.create_working_agent("Mr_Madagas",db)
-        user_proxy_agent = UserProxyAgent("user_proxy", input_func = lambda _: input(""))
+        from service.song_recommendation_service import input_function_user_proxy
+        user_proxy_agent = UserProxyAgent("user_proxy", input_func = input_function_user_proxy)
 
         # Initialize the termination conditions
         text_termination_song = TextMentionTermination(text="PERFECT")
@@ -175,7 +193,7 @@ Emotional history: {issue_history}
             return f"No link was found for the song {song_name}"
         except Exception as e:
             return f"Could not fetch YouTube link due to network error: {e}"
-
+        
     async def runRecommendService(self,db):
 
         """
