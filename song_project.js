@@ -957,48 +957,47 @@ function submitQueryRecommendMusic(query) {
       method: "POST",
     }
   )
-  //   .then(async (response) => {
-  //     if (!response.ok) {
-  //       const errorData = await r
-  //       esponse.json();
-  //       console.error("Error:", errorData.detail); // This is what FastAPI sets
-  //       throw new Error(errorData.detail);
-  //     }
-  //     const answer = safeBase64Decode(response.headers.get("header"));
+    .then(async (response) => {
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error:", errorData.detail); // This is what FastAPI sets
+        throw new Error(errorData.detail);
+      }
+      const answer = safeBase64Decode(response.headers.get("header"));
 
-  //     // Remove loading message
-  //     recommendMusic.removeChild(loadingDiv);
+      // Remove loading message
+      recommendMusic.removeChild(loadingDiv);
       
-  //     // Remove the result after 10 seconds
-  //     setTimeout(() => {
-  //       if (recommendMusic.contains(resultDiv)) {
-  //         recommendMusic.removeChild(resultDiv);
-  //       }
-  //     }, 10000);
-  //     return response.blob();
-  //   })
-  //   .then((audioBlob) => {
-  //     const audioUrl = URL.createObjectURL(audioBlob);
-  //     const audio = new Audio(audioUrl);
-  //     audio.play();
-  //   })
-  //   .catch((error) => {
-  //     // Remove loading message
-  //     recommendMusic.removeChild(loadingDiv);
+      // Remove the result after 10 seconds
+      setTimeout(() => {
+        if (recommendMusic.contains(resultDiv)) {
+          recommendMusic.removeChild(resultDiv);
+        }
+      }, 10000);
+      return response.blob();
+    })
+    .then((audioBlob) => {
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+    })
+    .catch((error) => {
+      // Remove loading message
+      recommendMusic.removeChild(loadingDiv);
 
-  //     // Create error message
-  //     const errorDiv = document.createElement("div");
-  //     errorDiv.innerHTML = `Error: ${error.message}`;
-  //     errorDiv.style.color = "red";
-  //     recommendMusic.appendChild(errorDiv);
+      // Create error message
+      const errorDiv = document.createElement("div");
+      errorDiv.innerHTML = `Error: ${error.message}`;
+      errorDiv.style.color = "red";
+      recommendMusic.appendChild(errorDiv);
 
-  //     // Remove the error message after 5 seconds
-  //     setTimeout(() => {
-  //       if (recommendMusic.contains(errorDiv)) {
-  //         recommendMusic.removeChild(errorDiv);
-  //       }
-  //     }, 5000);
-  //   });
+      // Remove the error message after 5 seconds
+      setTimeout(() => {
+        if (recommendMusic.contains(errorDiv)) {
+          recommendMusic.removeChild(errorDiv);
+        }
+      }, 5000);
+    });
 }
 
 // Function to open the music picker page

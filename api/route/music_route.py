@@ -69,17 +69,15 @@ async def deleteMusic(username: str, musicId: str, db = Depends(getMongoDB)):
 @router.post("/aiSuggestMusic/")
 async def aiSuggestMusic(db = Depends(getMongoDB)):
     """
-    Get AI-generated music suggestions based on a query
-    
-    Args:
-        query: Search query for music suggestions
-        
-    Returns:
-        list: List of suggested music items
+    Get AI-generated music suggestion using team. Keep track of the global_state of the team chat to avoid duplicating.
     """
-    text_output =  await recommendService.ai_suggest_music(db)
-    audio_output = await voiceService.speak_up(text_output["message"])
-    return await handlingReturn.text_and_audio(audio_output,text_output["message"])    
+    from infrastructure.socketio import client_states, global_sid
+    print(client_states[global_sid])
+    if client_states[global_sid] == "end":
+       client_states[global_sid] = "start"
+       text_output =  await recommendService.ai_suggest_music(db)
+       audio_output = await voiceService.speak_up(text_output["message"])
+       return await handlingReturn.text_and_audio(audio_output,text_output["message"])    
 
 @router.post("/aiPickMusic/")
 async def aiPickMusic(username: str, query: str, db = Depends(getMongoDB)):

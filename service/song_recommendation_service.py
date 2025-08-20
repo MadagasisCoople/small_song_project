@@ -6,7 +6,7 @@ from autogen_agentchat.agents import AssistantAgent, UserProxyAgent
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_agentchat.teams import RoundRobinGroupChat, SelectorGroupChat
 from autogen_agentchat.ui import Console
-from autogen_agentchat.conditions import TextMentionTermination
+from autogen_agentchat.conditions import TextMentionTermination, SourceMatchTermination
 import os
 import json
 
@@ -26,6 +26,7 @@ OPEN_AI_KEY = os.environ.get("OPENAI_API_KEY") or ""
 
 agent = Agent()
 
+# global variable to store the chat current state
 
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -76,6 +77,7 @@ class SongRecommender:
         # Initialize the termination conditions
         text_termiantion_chat = TextMentionTermination(text="Let's the music does its job!")
         text_termination_song = TextMentionTermination(text="PERFECT")
+        source_termination_chat = SourceMatchTermination(sources=["mood_reader", "critic_agent"])
 
         # Intialize the selector_prompt
         selector = """
@@ -110,14 +112,23 @@ Emotional history: {issue_history}
         team_doctor = SelectorGroupChat(
             [issue_agent,  user_proxy_agent, mood_agent, issue_agent_assistant],
             selector_prompt=selector,
+            termination_condition= source_termination_chat,
             model_client=self.model_client,
-            termination_condition=text_termiantion_chat,
             max_selector_attempts=5,
         )
 
         console_sub = ConsoleSub()
 
-        await console_sub.run(team_doctor.run_stream(task=tasks), output_stats=True)
+        result_chat = await console_sub.run(team_doctor.run_stream(task=tasks), output_stats=True)
+
+        if hasattr(result_chat, 'messages') and result_chat.messages:
+            for msg in reversed(result_chat.messages):
+                source = getattr(msg, "source", None)
+                if source == "mood_reader":
+                    content = getattr(msg, "content", None)
+                    if isinstance(content, str):
+                        tasks = content
+                        break
        
         while True:
             result = await console_sub.run(
@@ -127,6 +138,8 @@ Emotional history: {issue_history}
             if hasattr(result, 'messages') and result.messages:
                 user_prompt = input("Give me your feedback: (or 'thanks' to quit): ")    
                 if user_prompt.lower().strip() == "thanks":
+                    global global_state 
+                    global_state = "end"
                     break
             tasks = f"Revise your previous list based on this feedback: {user_prompt}."
 

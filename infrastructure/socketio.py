@@ -17,7 +17,7 @@ sio = AsyncServer(
 
 # Socket.IO app
 socket_app = ASGIApp(sio)
-
+client_states: Dict[str, str] = {}
 global_sid = None
 @sio.event
 async def connect(sid:str, environ, auth):
@@ -25,6 +25,7 @@ async def connect(sid:str, environ, auth):
     print(f"Client connected: {sid}")
     global_sid = sid
     await manual_emit("connected",{},sid)
+    client_states[global_sid] = "end"
 
 @sio.event
 async def disconnect(sid):
