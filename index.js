@@ -28,3 +28,14 @@ socket.on("chat_message", (type) => {
 socket.on("disconnect", () => {
     console.warn("Disconnected from backend");
 });
+
+socket.on("Ms.Robin", (data) => {
+    console.log("Received from backend:", data);
+    console.log("Message text:", data.message);
+    console.log("Received:", data.message);
+
+    let chatBox = document.getElementById("chatMessages");
+    let messageBox = document.createElement("li");
+    messageBox.textContent = data.message;
+    chatBox.appendChild(messageBox);
+});

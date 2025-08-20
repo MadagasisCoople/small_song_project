@@ -23,7 +23,7 @@ from autogen_agentchat.messages import (
 )
 
 from service.voice_service import VoiceService
-
+from infrastructure.socketio import manual_emit
 voiceService = VoiceService()
 
 T = TypeVar("T", bound=TaskResult | Response)
@@ -155,7 +155,9 @@ class ConsoleSub:
                                cleaned = message.to_text().replace("[", "").replace("]", "")
                                one_line = " ".join(cleaned.split())
                                # await voiceService.speak_up(one_line)
+                            await manual_emit("Ms.Robin",{"message": message.to_text()})
                             await aprint(message.to_text(), end="\n", flush=True)
+                            
                         else:
                             await aprint(message.to_text(), end="\n", flush=True)
 
