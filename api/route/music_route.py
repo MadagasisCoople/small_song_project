@@ -7,7 +7,7 @@
 from fastapi import APIRouter, File, HTTPException, Depends, UploadFile
 from infrastructure.mongo_DB import getMongoDB
 from service.music_service import MusicService
-from service.random_recommend_service import RecommendService
+from service.random_recommender_service import RecommendService
 from service.voice_service import VoiceService
 from service.handling_return import HandlingReturn
 print("Music route initialized")
@@ -67,7 +67,7 @@ async def deleteMusic(username: str, musicId: str, db = Depends(getMongoDB)):
     return await handlingReturn.text_and_audio(audio_output,text_output["message"])
 
 @router.post("/aiSuggestMusic/")
-async def aiSuggestMusic(query: str):
+async def aiSuggestMusic(db = Depends(getMongoDB)):
     """
     Get AI-generated music suggestions based on a query
     
@@ -77,7 +77,7 @@ async def aiSuggestMusic(query: str):
     Returns:
         list: List of suggested music items
     """
-    text_output =  await recommendService.ai_suggest_music(query)
+    text_output =  await recommendService.ai_suggest_music(db)
     audio_output = await voiceService.speak_up(text_output["message"])
     return await handlingReturn.text_and_audio(audio_output,text_output["message"])    
 

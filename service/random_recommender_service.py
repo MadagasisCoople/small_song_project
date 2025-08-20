@@ -3,6 +3,9 @@
 import openai
 import os
 from dotenv import load_dotenv
+from service.song_recommendation_service import SongRecommender
+
+songRecommender = SongRecommender()
 
 class RecommendService:
     """
@@ -14,7 +17,7 @@ class RecommendService:
 
     openai.api_key = os.getenv('OPENAI_API_KEY')
 
-    async def ai_suggest_music(self, query: str):
+    async def ai_suggest_music(self,db):
         """
         Get AI-generated music suggestion based on user query
         
@@ -24,17 +27,8 @@ class RecommendService:
         Returns:
             str: Formatted string with suggested song
         """
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": f"You are a helpful assistant that suggests one YouTube song for a user and response based on the user's query. You MUST give a relevent response that matches with the queries, NO randomness OR creative. When given a user's query, you MUST reply ONLY with a string in this exact format:\n\nYours '{query}' is matched with [song name]\n\nDo not explain or include code. Just output a single string in that format."},
-                {"role": "user", "content": query}
-            ]
-        )
-
-        _content_raw = response.choices[0].message.content or "i am dumb"
-
-        return {"message": _content_raw}
+        temp_string =  await songRecommender.runRecommendService(db)
+        return {"message": temp_string}
 
     async def ai_pick_music(self, username: str, query: str, db):
         """

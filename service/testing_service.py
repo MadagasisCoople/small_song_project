@@ -19,8 +19,7 @@ async def test():
     db = getMongoDB()
     
     # Initialize and run the SongRecommender
-    model_cilent = modelCilent.generate_cilent("o4-mini")
-    recommender = SongRecommender(model_cilent)
+    recommender = SongRecommender()
     await recommender.runRecommendService(db)
 
 if __name__ == "__main__":

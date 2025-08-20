@@ -14,6 +14,8 @@ from repositories.agent_repository import Agent
 from repositories.emotional_repository import EmotionalIssue
 from service.console_sub_service import ConsoleSub
 from infrastructure.model_cilent import ModelCilent
+from infrastructure.socketio import user_message_queue
+
 from dotenv import load_dotenv
 load_dotenv()
 voiceService = VoiceService()
@@ -24,32 +26,16 @@ OPEN_AI_KEY = os.environ.get("OPENAI_API_KEY") or ""
 
 agent = Agent()
 
+
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
             return obj.isoformat()  # Or str(obj)
         return super().default(obj)
 
-async def input_function_user_proxy(context, prompt) -> str:
-    # Wait until frontend sends a "response" event
-    """
-    Wait until frontend sends a "response" event.
-
-    Parameters:
-    - context: The context of the function.
-    - prompt: The prompt to the user.
-    (Not much usage, just to match the requirement of ASyncInputFunc)
-    Returns:
-    - str: The message received from the user.
-    """
-    
-    from infrastructure.socketio import user_message_queue
-    msg = await user_message_queue.get()
-    return msg
-
 class SongRecommender:
-    def __init__(self,model_cilent: OpenAIChatCompletionClient):
-        self.model_client = model_cilent
+    def __init__(self):
+        self.model_client = modelCilent.generate_cilent("o4-mini")
 
     async def get_song_recommendations(self, db, n=5):
         """
@@ -85,10 +71,10 @@ class SongRecommender:
         # emotion agents
         issue_agent= await agent.create_working_agent("Ms_Robin",db)
         issue_agent_assistant = await agent.create_working_agent("Mr_Madagas",db)
-        from service.song_recommendation_service import input_function_user_proxy
-        user_proxy_agent = UserProxyAgent("user_proxy", input_func = input_function_user_proxy)
+        user_proxy_agent = UserProxyAgent("user_proxy", input_func = self.input_function_user_proxy)
 
         # Initialize the termination conditions
+        text_termiantion_chat = TextMentionTermination(text="Let's the music does its job!")
         text_termination_song = TextMentionTermination(text="PERFECT")
 
         # Intialize the selector_prompt
@@ -100,11 +86,8 @@ Conversation history:
 {history}
 
 Select an agent from {participants} to perform the next task based on these instructions:
-The flow should be issue_agent asks the user_proxy_agents till, the user said "I want songs" then, mood_reader then end with calling song_recommender followed by song_critic till song_critic said "Perfect"
-The issue_assistant_agent will ONLY RUN when issue_agent said "HELP ME DARLING"
-After the mood_reader ran, ALWAYS CALL SONG_RECOMMENDER after
-After the song_recommender run, ALWAYS CALL SONG_CRITIC after it
-Never run issue_agents again after mood_reader, song_recommender or song_critic
+The flow should be issue_agent asks the user_proxy_agents till, the user said "yes or I want songs" then, mood_reader call its function
+If issue_agents demand helps, the issue_agent_assistant should respond.
 Only one agent should act at a time.
 """
 
@@ -119,19 +102,26 @@ Emotional history: {issue_history}
 """
         
         # Initialize the team
-        team = SelectorGroupChat(
-            [issue_agent,  user_proxy_agent, mood_agent, issue_agent_assistant, song_agent, critic_agent],
-            model_client=self.model_client,
-            selector_prompt=selector,
+        team_song_recommender = RoundRobinGroupChat(
+            [song_agent, critic_agent],
             termination_condition=text_termination_song,
+        )
+
+        team_doctor = SelectorGroupChat(
+            [issue_agent,  user_proxy_agent, mood_agent, issue_agent_assistant],
+            selector_prompt=selector,
+            model_client=self.model_client,
+            termination_condition=text_termiantion_chat,
             max_selector_attempts=5,
         )
 
         console_sub = ConsoleSub()
+
+        await console_sub.run(team_doctor.run_stream(task=tasks), output_stats=True)
        
         while True:
             result = await console_sub.run(
-                team.run_stream(task=tasks),
+                team_song_recommender.run_stream(task=tasks),
                 output_stats=True,)
 
             if hasattr(result, 'messages') and result.messages:
@@ -143,7 +133,7 @@ Emotional history: {issue_history}
         # Extract the song recommendations list
         response = ""
 
-        state = await team.save_state()
+        state = await team_song_recommender.save_state()
         with open("agent_state.json", "w") as f:
             json.dump(state, f, indent=4, cls=DateTimeEncoder)
 
@@ -160,6 +150,10 @@ Emotional history: {issue_history}
 
         songs = [line.strip() for line in response.split("\n") if line.strip()]
         return songs[:n] # alist of n songs
+    
+    async def input_function_user_proxy(self, context, prompt) :
+        msg = await user_message_queue.get()
+        return msg
 
     @classmethod
     async def get_youtube_link(cls, song_name: str):
@@ -206,11 +200,14 @@ Emotional history: {issue_history}
             4. Retrieves a YouTube link for each of the recommended songs
             5. Prints the YouTube links for the recommended songs
         """
+        _list_of_song = "" #Saving list of song for return product
         recommended_songs = await self.get_song_recommendations(db)
         for idx, song in enumerate(recommended_songs, 1):
             print(f"{idx}. {song}")
             youtube_link = await self.get_youtube_link(song)
             if youtube_link:
                 print(f"YouTube: {youtube_link}")
+                _list_of_song += youtube_link + "\n"
         await self.model_client.close()
+        return _list_of_song
 

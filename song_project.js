@@ -951,19 +951,12 @@ function submitQueryRecommendMusic(query) {
   messageBox.textContent = query
   chatBox.appendChild(messageBox)
   socket.emit("response", {"message":query})
-  // // Create loading message
-  // const loadingDiv = document.createElement("div");
-  // loadingDiv.innerHTML = "Searching for music recommendations...";
-  // loadingDiv.style.color = "blue";
-  // recommendMusic.appendChild(loadingDiv);
-
-
-  // fetch(
-  //   `http://localhost:8000/aiSuggestMusic/?query=${encodeURIComponent(query)}`,
-  //   {
-  //     method: "POST",
-  //   }
-  // )
+  fetch(
+    `http://localhost:8000/aiSuggestMusic/`,
+    {
+      method: "POST",
+    }
+  )
   //   .then(async (response) => {
   //     if (!response.ok) {
   //       const errorData = await r
