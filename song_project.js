@@ -927,7 +927,16 @@ function openAiPage() {
 
 // Function to open the music recommendation page
 function openRecommendMusicPage() {
+  fetch(
+    `http://localhost:8000/aiSuggestMusic/`,
+    {
+      method: "POST",
+    }
+  )
+  recommendMusic.textContent = "Wait a minute while Miss.Robin is coming"
+  setTimeout(function(){
   if (!recommendMusic.contains(document.getElementById("inputQuery"))) {
+    recommendMusic.textContent = "Type to Miss Robin here: "
     const inputQuery = document.createElement("input");
     inputQuery.id = "inputQueryRecommend";
     recommendMusic.appendChild(inputQuery);
@@ -942,13 +951,14 @@ function openRecommendMusicPage() {
     );
     recommendMusic.removeEventListener("click", openRecommendMusicPage);
   }
+},7000)
 }
 
 // Function to handle music recommendation queries
 function submitQueryRecommendMusic(query) {
   //Write the message to the chat box      
   let messageBox = document.createElement("li")
-  messageBox.textContent = query
+  messageBox.textContent = "User: "+query
   chatBox.appendChild(messageBox)
   socket.emit("response", {"message":query})
   fetch(
